@@ -1,0 +1,95 @@
+import cv2
+import numpy as np
+import json
+import mss
+
+capture = mss.mss()
+
+def grab_screen():
+    monitor = capture.monitors[1]
+    img = capture.grab(monitor)
+    frame = np.array(img)
+    return cv2.cvtColor(frame, cv2.COLOR_BGRA2BGR)
+
+roi = None
+selecting = False
+start_pt = None
+
+def mouse_cb(event, x, y, flags, param):
+    global roi, selecting, start_pt, clone
+    
+    if event == cv2.EVENT_LBUTTONDOWN:
+        start_pt = (x, y)
+        selecting = True
+    elif event == cv2.EVENT_MOUSEMOVE and selecting:
+        temp = clone.copy()
+        cv2.rectangle(temp, start_pt, (x, y), (0, 255, 0), 2)
+        cv2.imshow("Select ROI", temp)
+    elif event == cv2.EVENT_LBUTTONUP:
+        selecting = False
+        roi = (min(start_pt[0], x), min(start_pt[1], y), abs(x - start_pt[0]), abs(y - start_pt[1]))
+
+def select_roi(frame):
+    global roi, clone
+    roi = None
+    clone = frame.copy()
+    
+    cv2.namedWindow("Select ROI")
+    cv2.setMouseCallback("Select ROI", mouse_cb)
+    cv2.imshow("Select ROI", frame)
+    
+    while True:
+        k = cv2.waitKey(1) & 0xFF
+        if k == 13:
+            break
+        elif k == 27:
+            roi = None
+            break
+    
+    cv2.destroyAllWindows()
+    return roi
+
+def save_roi(r):
+    with open("roi.json", 'w') as f:
+        json.dump({'x': r[0], 'y': r[1], 'w': r[2], 'h': r[3]}, f)
+
+def load_roi():
+    try:
+        with open("roi.json", 'r') as f:
+            d = json.load(f)
+        return (d['x'], d['y'], d['w'], d['h'])
+    except:
+        return None
+
+
+print("BACKSEATER AI")
+print("=============")
+print()
+
+
+saved = load_roi()
+if saved:
+    print(f"Found saved ROI: {saved}")
+    use = input("Use this? (y/n): ")
+    if use.lower() == 'y':
+        roi = saved
+    else:
+        input("Press enter when game is visible...")
+        screen = grab_screen()
+        roi = select_roi(screen)
+        if roi:
+            save_roi(roi)
+else:
+    input("Press enter when game is visible...")
+    screen = grab_screen()
+    roi = select_roi(screen)
+    if roi:
+        save_roi(roi)
+
+if not roi:
+    print("No ROI selected, exiting")
+    exit()
+
+print(f"ROI saved: {roi}")
+print()
+print("Setup complete...")
