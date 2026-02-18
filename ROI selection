@@ -66,6 +66,17 @@ print("BACKSEATER AI")
 print("=============")
 print()
 
+print("Select personality:")
+print("1 - Tactical Coach")
+print("2 - Friendly")
+p = input("Choice: ")
+if p == '1':
+    personality = "tactical"
+else:
+    personality = "friendly"
+print(f"Selected: {personality}")
+print()
+
 
 saved = load_roi()
 if saved:
