@@ -10,10 +10,4 @@ Backseater AI observes gameplay in real-time and reacts like a live streamer or 
 - **Large Language Models** (GPT) to generate contextual commentary
 - **Text-to-Speech** to speak responses aloud
 
-## Current Status: Prototype Phase
-**December 2025** – Building proof of concept with Tic-Tac-Toe
-
-### What's Working:
-- ✅ Basic Tic-Tac-Toe game implementation
-- 🔄 CV event detection (in progress)
-- ⏳ LLM integration (planned)
+## Current Status:  Post-report/ Evaluation Phase
